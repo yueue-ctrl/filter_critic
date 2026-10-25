@@ -11,3 +11,7 @@ __pycache__/
 /*-preview.png
 /preview.png
 /ai-processing-status.png
+
+# Generated static deployment
+dist/
+.vercel/

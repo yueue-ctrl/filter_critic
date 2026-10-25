@@ -1,61 +1,62 @@
-# Critroom
+# Critroom — temporary critique demo
 
-A local, responsive critique app with accounts, folders, image/link previews, project invitations, text/drawing/audio feedback, and persisted takeaway decisions. Requires Node.js 22.13+; the local AI installer currently targets macOS with Python 3.9+.
+Open the website, type a project name, record feedback, analyze it, organize the takeaway cards, and download the result. No sign-in, account, database, or shared project storage is required.
 
-## Start with free local AI
+The current session exists only in the browser tab's memory. Refreshing creates a completely empty session, including when the URL contains an old project ID. There is no localStorage, sessionStorage, IndexedDB, or session cookie. A download is the user's own standalone HTML file containing the transcript, highlighted evidence, takeaways, and Keep/Trash decisions. Audio is released from the browser after successful analysis. Failed analysis retains the recording only in that tab for retry.
+
+## Run locally
+
+Requires Node.js 22.x.
 
 ```sh
 npm install
-npm run setup:local
 npm run dev
 ```
 
-Open http://localhost:3000. The first setup downloads an official Ollama runtime, Qwen3 4B (~2.5 GB), and a multilingual Whisper small speech model (~500 MB), plus Python dependencies. Allow several GB of disk space. The installer verifies the Ollama release checksum, installs a project-local Python environment, and records the downloaded speech model revision.
+Open http://localhost:3000. The default server is `demo-server.js`; it does not initialize or open SQLite.
 
-The default provider is **local**. No OpenAI key, API balance, account, or per-request API payment is required. After model downloads, recordings are transcribed offline by faster-whisper/PyAV and takeaways are generated through a loopback-only Ollama service. Runtime transcription disables Hugging Face network access. Cloud model names and remote Ollama URLs are rejected. An existing OpenAI key is ignored in local mode, and there is no automatic paid fallback.
+With `GEMINI_API_KEY` in `.env`, analysis uses Gemini. Without that key, local development can use the previously installed offline Whisper and Ollama models. To install those optional models on macOS:
 
-Data lives in `data/critique.sqlite`; models and temporary workers live in `.local-ai/`. Both folders and `.env` are ignored by Git. Temporary decoded audio files are removed after processing; original recordings are automatically deleted as soon as the transcript is successfully saved. Failed transcriptions retain their audio for retry. Previously transcribed recordings are also removed from the active database at startup. The app starts the local text runtime when needed. Keep the app running while processing; interrupted analysis can be retried without rerecording.
-
-Optional `.env` settings:
-
-```env
-AI_PROVIDER=local
-OLLAMA_MODEL=qwen3:4b
-OLLAMA_URL=http://127.0.0.1:11434
+```sh
+npm run setup:local
 ```
 
-The separate OpenAI adapter remains available only through explicit `AI_PROVIDER=openai` configuration. It is not used by the default setup.
+The offline runtime is development-only and is never used by the Vercel API function. To preview the cloud configuration locally, including its missing-key error, set `DEMO_AI_PROVIDER=gemini`.
 
-## Workflow
+## Deploy the anonymous demo to Vercel
 
-- Create an account and project. Upload a PNG/JPEG/WebP or paste an HTTP(S) link. Project names appear in navigation. Links that block embedding must be opened with Open original link; Figma links use an embed preview.
-- START CRITIQUE creates a saved session, QR invitation and eight-character join code. Participants can join after signing in and submit text, drawings and recordings.
-- Record, pause/resume and Finish Critique. Finishing saves the current clip, closes submissions, automatically transcribes each recording locally and generates evidence-backed takeaways. Successful transcriptions are cached as text for retries; initial transcript text is preserved separately. Audio is deleted in the same database update that saves the transcript, even if takeaway generation later fails. Feedback views and exports retain the text and takeaways without audio players for deleted recordings.
-- Organizing opens automatically. Swipe up / Arrow Up / Trash to discard a takeaway; swipe down / Arrow Down / Keep to retain it. Undo restores the latest decision. Finalize adds kept takeaways to project Feedback. Trash never deletes original evidence.
-- Profile, personal folders, invited folders and shared profiles are available through Settings. Folder invitations grant access to current and future projects in that folder; project invitations grant access only to one project. Other profiles show only name, ID and shared accessible projects.
+1. Import this GitHub repository as a Vercel project.
+2. Add `GEMINI_API_KEY` as a server-side environment variable in the Vercel dashboard. Do not put it in browser code, a `VITE_`/`NEXT_PUBLIC_` variable, GitHub, or chat.
+3. Optionally set `GEMINI_MODEL=gemini-2.5-flash` (the default).
+4. Deploy. The included `vercel.json` runs `npm run build`, serves `dist/`, and exposes `api/analyze.js` and `api/config.js` as Node functions.
 
-Model-generated takeaways are checked against real evidence IDs and original text. Independent contributors and explicit agreements determine consensus counts. Opposite suggestions should remain separate. Drawings without text are reviewable evidence; they are not visually analyzed. Short or noisy recordings can yield no actionable takeaways. Local model quality and speed depend on hardware. Word-level audio timing and speaker diarization are not implemented.
+No Supabase project or database configuration is needed. Visitors do not need their own API key or model installation. Missing/invalid keys and exhausted quota show a retryable error; the app does not silently switch to a different paid service.
 
-## Multiple devices and deployment
+To use Gemini's free tier, create the key in an eligible, unbilled Google AI Studio project and keep billing disabled. The code cannot determine a key's billing tier: a key from a billed project can incur that project's normal charges. All visitors share the host project's quota. Free limits, model availability, and hosting terms may change; see the official [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing), [rate limits](https://ai.google.dev/gemini-api/docs/rate-limits), and [Vercel Hobby plan](https://vercel.com/docs/plans/hobby). Vercel Hobby is for personal, non-commercial use.
 
-The app listens on `0.0.0.0`. On the same network, open `http://<computer-LAN-IP>:3000`; share invitations generated using that address. A phone cannot access the computer through a localhost QR link. Microphone/camera access requires HTTPS except on localhost; existing audio/QR images can be uploaded instead.
+Cloud analysis sends audio directly in the analysis request to Google's Gemini API. The app does not upload it to a file-storage service, write it to a database, or log recording/transcript bodies. This does not override the AI provider's data policies: Gemini's free tier may use submitted content to improve its products. The recording page identifies Google as the analysis provider. See [Google's terms](https://ai.google.dev/gemini-api/terms).
 
-Use `PUBLIC_URL` for a public invitation base URL, `PORT` for the server port, `DATA_DIR` for the database directory and `COOKIE_SECURE=true` behind HTTPS. SQLite and local AI require a persistent host. Before deploying a Vercel frontend, move identity/database/files to hosted services and run local inference on a separate reachable service. Vercel alone cannot run this desktop-local setup.
+## Recording and analysis
 
-This is a prototype: email verification, password reset, invitation revocation, account deletion and full audit controls are not yet implemented. Existing feedback prevents replacing a project image to preserve drawing coordinates; use a new project for a new version.
+- Microphone access requires HTTPS or localhost. Modern browsers use WebM/Opus, M4A, or Ogg recording as supported.
+- A clip is limited to 10 active recording minutes and 3 MB. Recording stops before the size limit where possible. Inline base64 requests remain below Vercel's 4.5 MB function-body limit. Longer recordings should be split into separate sessions.
+- Gemini receives one request for transcription and structured takeaways. Exact quote substrings are validated against the returned transcript. Repeated matching quotes determine **mentions**, not an invented count of people. Repeated briefs are merged; opposite suggestions remain separate by prompt instruction.
+- Browser recording buffers are cleared after capture, and the retained clip is released after a successful result. Refresh discards any failed/pending recording too. The optional offline worker uses a temporary decoded audio file and removes it after processing.
+- The anonymous endpoint bounds request sizes, checks browser origins, and has best-effort per-instance request/concurrency limits. Provider quotas remain the shared account-level limit; the app cannot provide unlimited free inference.
 
-## Verification
+## Organizing and export
+
+Both destination characters show their first frames while idle. Upward dragging scrubs the supplied trash animation; downward dragging scrubs the keep animation. Releasing a committed gesture continues from that frame and processes only the current card. Takeaway text replaces the baked-in animation wording. Gestures, keyboard repeat, clicks, and trackpad momentum are guarded while an animation is active. Undo is available within the current organizing view. Reduced-motion preferences skip automatic playback.
+
+Download embeds the Yomogi font and original transcript in a standalone HTML report, without audio. The report records all takeaways and their Keep/Trash decisions; only kept cards appear on the result homepage. The supplied font's OFL license is in `public/fonts/OFL.txt`.
+
+## Checks
 
 ```sh
 npm test
+npm run build
 ```
 
-Tests cover accounts and access isolation, project/folder invitations, QR decoding, all feedback types, AI source validation, recording/transcript recovery, Keep/Trash/Finalize persistence, and confirmation that the local provider never calls a paid API even when an OpenAI key exists. Adapter tests use mocked network responses; actual local model checks are run separately after setup.
+Tests cover anonymous requests, no database/cookie creation in the demo server, refresh-equivalent fresh-session state, audio release, inline Gemini input, quote validation, duplicate merging, quota/configuration errors, exports, and one-card animation locking. Provider HTTP calls are mocked in tests; a configured Gemini key is required for a real cloud analysis check.
 
-Local components: [Ollama](https://github.com/ollama/ollama), [Qwen3 4B](https://ollama.com/library/qwen3:4b), [faster-whisper](https://github.com/SYSTRAN/faster-whisper).
-
-Organizing animates each downward swipe or Keep click using the supplied collection motion with the current takeaway text. A card stays locked until both animation and saving finish. Repeated pointer events, held arrow keys, and trackpad momentum do not collect the next card. Failed saves restore the current card; Undo remains available after a successful decision. Reduced-motion preferences skip the collection animation.
-
-The home screen uses the supplied animated character at the viewport bottom. Its animation restarts after the entry loader finishes. A browser refresh while signed in resets that account's owned projects, feedback, critiques, and takeaways, then returns to an empty home screen; accounts and sessions remain. Normal navigation and browser Back/Forward do not reset the workspace. Other users' owned projects are not deleted. Download feedback before refreshing if you want an offline copy.
-
-Organizing shows both destination characters in their first frames while idle. Upward dragging scrubs the supplied trash animation; downward dragging scrubs the keep animation. Releasing a committed gesture continues from the previewed frame and saves only that card. Both animations replace their original caption with the actual takeaway, and the inactive destination stays visible.
+The earlier account/database prototype remains available through `npm run dev:workspace` and has separate legacy tests. It is not the website's default entry point and is not included in the static demo build. Local data/models/secrets and verification screenshots remain ignored by Git.

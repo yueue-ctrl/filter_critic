@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node --experimental-sqlite server.js",
-    "start": "node --experimental-sqlite server.js",
+    "dev": "node demo-server.js",
+    "start": "node demo-server.js",
     "test": "node --experimental-sqlite --test",
     "setup:local": "node scripts/setup-local-ai.mjs",
-    "reset:demo": "node --experimental-sqlite scripts/reset-demo.mjs"
+    "reset:demo": "node --experimental-sqlite scripts/reset-demo.mjs",
+    "build": "node scripts/build-demo.mjs",
+    "dev:workspace": "node --experimental-sqlite server.js"
   },
   "dependencies": {
     "jsqr": "^1.4.0",
     "qrcode": "^1.5.4"
+  },
+  "engines": {
+    "node": "22.x"
   }
 }

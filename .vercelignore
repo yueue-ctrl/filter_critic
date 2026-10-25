@@ -1,0 +1,12 @@
+.git/
+node_modules/
+.local-ai/
+data/
+.env
+.env.*
+*.sqlite
+*.sqlite-*
+/*-preview.png
+/preview.png
+/ai-processing-status.png
+__pycache__/
