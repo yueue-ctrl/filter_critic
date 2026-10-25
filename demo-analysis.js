@@ -10,14 +10,14 @@ export function analysisInput(body){
  if(text.length>24000)throw error(413,'Use feedback under 24,000 characters.');
  let audio=null;
  if(body.audio){
-  const match=String(body.audio).match(/^data:(audio\/[\w.+-]+)(?:;codecs=[\w.-]+)?;base64,([A-Za-z0-9+/]+={0,2})$/);
+  const match=String(body.audio).match(/^data:(audio\/[\w.+-]+)((?:;[^,]*)?);base64,([A-Za-z0-9+/]+={0,2})$/i);
   if(!match)throw error(400,'Use a supported audio recording.');
-  const data=Buffer.from(match[2],'base64');if(data.length<3||data.toString('base64')!==match[2])throw error(400,'Invalid audio data.');
+  const data=Buffer.from(match[3],'base64');if(data.length<3||data.toString('base64')!==match[3])throw error(400,'Invalid audio data.');
   if(data.length>MAX_AUDIO_BYTES)throw error(413,'Record a shorter clip, under 3 MB.');
   const aliases={'audio/mp4':'audio/m4a','audio/x-m4a':'audio/m4a','audio/x-wav':'audio/wav','audio/x-aiff':'audio/aiff'};
-  const mime=aliases[match[1]]||match[1];
+  const baseMime=match[1].toLowerCase(),mime=aliases[baseMime]||baseMime;
   if(!['audio/webm','audio/m4a','audio/mp3','audio/mpeg','audio/wav','audio/ogg','audio/aac','audio/flac','audio/aiff','audio/opus'].includes(mime))throw error(400,'Unsupported audio format.');
-  audio={mime,data:match[2]};
+  audio={mime,data:match[3]};
  }
  if(!audio&&!text)throw error(400,'Record some feedback first.');
  return {title,text,audio};

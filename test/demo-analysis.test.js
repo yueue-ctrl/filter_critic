@@ -22,3 +22,12 @@ test('missing keys, quota exhaustion and truncated output never use a paid fallb
  await assert.rejects(geminiAnalysis(input,{env:{GEMINI_API_KEY:'test'},fetcher:async()=>({ok:false,status:429,json:async()=>({secret:'never shown'})})}),e=>e.status===429&&!e.message.includes('secret'));
  await assert.rejects(geminiAnalysis(input,{env:{GEMINI_API_KEY:'test'},fetcher:async()=>({ok:true,json:async()=>({candidates:[{finishReason:'MAX_TOKENS'}]})})}),/shorter/);
 });
+
+test('mobile recorder MIME parameters are normalized before model upload',()=>{
+ for(const type of ['audio/mp4;codecs="mp4a.40.2"','audio/mp4; codecs=mp4a.40.2','audio/mp4;codecs=mp4a.40.2;rate=48000','audio/webm;codecs="opus"']){
+  const result=analysisInput({audio:'data:'+type+';base64,YWJj'});
+  assert.equal(result.audio.data,'YWJj');
+  assert.equal(result.audio.mime,type.startsWith('audio/mp4')?'audio/m4a':'audio/webm');
+ }
+ assert.throws(()=>analysisInput({audio:'data:video/mp4;base64,YWJj'}),/supported/);
+});
