@@ -1,0 +1,13 @@
+node_modules/
+data/
+.env
+.local-ai/
+__pycache__/
+.DS_Store
+.env.*
+!.env.example
+
+# Local UI verification screenshots
+/*-preview.png
+/preview.png
+/ai-processing-status.png

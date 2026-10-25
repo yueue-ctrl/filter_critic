@@ -1,0 +1,278 @@
+@font-face {
+  font-family: "Yomogi";
+  src: url("/fonts/Yomogi-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+html, body { font-family: "Yomogi", cursive; }
+button, input, textarea, select, option { font-family: inherit; }
+/* Browser defaults, with only the sizing needed for inputs and the drawing surface. */
+body { margin: 16px; }
+main { max-width: 900px; }
+header, nav { margin-bottom: 16px; }
+label { display: block; margin: 12px 0; }
+textarea { display: block; width: min(100%, 600px); }
+input:not([type=file]) { max-width: 90%; }
+button { margin: 2px; }
+button[aria-pressed=true] { font-weight: bold; }
+section { margin: 16px 0; }
+.original { white-space: pre-wrap; overflow-wrap: anywhere; }
+dd { overflow-wrap: anywhere; }
+.board { position: relative; width: min(100%, 800px); min-height: 300px; border: 1px solid black; }
+.board:has(img) { min-height: 0; }
+.board img { display: block; width: 100%; }
+.board canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.board canvas.drawing { pointer-events: auto; touch-action: none; cursor: crosshair; }
+.qr { display: block; width: 200px; }
+#scan-video { display: block; width: min(100%, 480px); }
+#invite-link { width: 500px; }
+audio { display: block; max-width: 100%; }
+dialog { max-width: min(90vw, 600px); }
+#toast { margin-top: 16px; }
+[hidden] { display: none !important; }
+
+/* Homepage follows the supplied profile reference. */
+.home-screen { margin: 0; background: #fff; color: #000; font-family: "Yomogi", cursive; }
+.home-header { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; max-width: 1100px; margin: 0 auto; padding: 24px 21px 0; box-sizing: border-box; line-height: 19px; }
+.room-title { display: flex; min-width: 0; text-decoration: none; font-size: 16px; font-weight: 700; }
+.room-title strong { flex-shrink: 0; }
+.room-title span { white-space: pre; overflow: hidden; text-overflow: ellipsis; color: #d9d9d9; }
+.home-header button { border: 0; border-radius: 0; background: none; padding: 0; margin: 0; font: 12px "Yomogi", cursive; color: #000; cursor: pointer; flex-shrink: 0; }
+.home-main { box-sizing: border-box; max-width: 1100px; margin: 0 auto; padding: 60px 29px 20px; }
+.home-actions { display: grid; grid-template-columns: minmax(0,1fr); gap: 40px; margin: 0; }
+.home-tile { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 1; border: 0; border-radius: 0; margin: 0; padding: 16px; background: #d9d9d9; color: #000; font: 12px "Yomogi", cursive; cursor: pointer; }
+.home-tile:hover { background: #d1d1d1; }
+.home-tile:focus-visible, .home-header button:focus-visible, .room-title:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
+.home-screen dialog { font-size: 14px; overflow-wrap: anywhere; max-height: 85dvh; overflow-y: auto; }
+.home-screen dialog button, .home-screen dialog input, .home-screen dialog select, .home-screen dialog textarea { font: inherit; }
+.home-screen #toast:empty { display: none; }
+.home-screen #toast { margin: 16px 29px; }
+@media (min-width: 768px) { .home-actions { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 350px) { .home-header { gap: 12px; padding-left: 16px; padding-right: 16px; } .room-title { font-size: 14px; } .home-main { padding-left: 20px; padding-right: 20px; } }
+.room-title, .room-title:visited { color: #000; }
+
+/* Project → Critique → Processing → Filtering. */
+.flow-screen { margin: 0; color: #000; background: #fff; font: 12px "Yomogi", cursive; }
+.flow-screen *, .flow-screen *::before, .flow-screen *::after { box-sizing: border-box; }
+.flow-screen button { font: inherit; color: inherit; background: none; border: 0; border-radius: 0; padding: 8px 4px; cursor: pointer; }
+.flow-screen button:disabled { opacity: .35; cursor: default; }
+.flow-screen button:focus-visible, .flow-screen a:focus-visible, .takeaway-front:focus-visible { outline: 2px solid #000; outline-offset: 4px; }
+.flow-header { max-width: 1100px; padding: 20px 22px 0; margin: 0 auto; display: flex; align-items: baseline; justify-content: space-between; gap: 16px; min-height: 45px; }
+.flow-header nav { display: flex; min-width: 0; margin: 0; font-size: 16px; font-weight: 700; gap: 3px; }
+.flow-header nav a { color: #d9d9d9; text-decoration: none; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; min-width: 0; }
+.flow-header nav span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.flow-header>button { flex-shrink: 0; padding: 4px 0; }
+#flow-main { width: 100%; max-width: 1100px; padding: 0 26px 24px; margin: 0 auto; }
+.project-preview { position: relative; display: flex; align-items: center; justify-content: center; width: 100%; height: min(60dvh, 620px); min-height: 320px; border: 1px solid #000; margin-top: 44px; overflow: hidden; }
+.project-preview img { width: 100%; height: 100%; object-fit: contain; }
+.project-preview iframe { width: 100%; height: 100%; border: 0; }
+.preview-empty { color: #888; }
+.feedback-heading { display: flex; justify-content: space-between; align-items: center; margin-top: 7px; }
+.feedback-heading h1 { font-size: 12px; font-weight: 400; margin: 0; }
+.link-fallback { font-size: 10px; line-height: 1.5; color: #777; overflow-wrap: anywhere; }
+.kept-card { border: 1px solid #000; border-radius: 20px; padding: 20px; margin: 20px 0; }
+.kept-card h2 { font-size: 14px; margin: 0 0 12px; }
+.kept-card>p { font-size: 14px; line-height: 1.6; }
+.evidence { margin-top: 16px; line-height: 1.6; overflow-wrap: anywhere; }
+.evidence div { margin-bottom: 20px; }
+.project-history { margin-top: 30px; line-height: 1.7; }
+.project-history h2 { font-size: 14px; }
+.critique-invitation { display: flex; gap: 26px; align-items: center; margin-top: 34px; }
+.critique-invitation>div:first-child { text-align: center; flex-shrink: 0; }
+.critique-invitation img { display: block; width: 94px; height: 94px; margin-bottom: 14px; }
+.critique-invitation strong { display: block; font-size: 16px; }
+.critique-invitation p { line-height: 1.4; margin-bottom: 0; }
+#share-critique { display: flex; flex-direction: column; padding: 0; align-items: center; gap: 3px; font-size: 10px; }
+.share-symbol { font-size: 28px; line-height: 28px; }
+.live-stage { height: calc(100dvh - 295px); min-height: 430px; position: relative; }
+.record-center { position: absolute; top: 36%; width: 100%; text-align: center; }
+#live-clock { margin-top: 28px; font-variant-numeric: tabular-nums; }
+#live-status { margin: 16px 0; color: #777; font-size: 10px; }
+.live-bottom { position: absolute; bottom: 23%; display: flex; justify-content: space-around; width: 100%; }
+.session-notes { margin-top: 30px; line-height: 1.8; }
+.session-notes form button, .analysis-help button { border: 1px solid #000; padding: 8px 12px; }
+.session-notes textarea, .analysis-help textarea { width: 100%; font: inherit; padding: 10px; }
+.processing-screen { min-height: 100dvh; max-width: none; display: grid; place-items: center; padding: 0; background: #fff; }
+.processing-screen p { margin: 0; font-size: 12px; text-transform: lowercase; }
+.analysis-help { max-width: 650px; margin: 60px auto; line-height: 1.7; }
+.analysis-help h1 { font-size: 18px; }
+.analysis-help form { margin: 25px 0; }
+.filter-stage { display: grid; grid-template-rows: 40px 1fr 40px; height: calc(100dvh - 65px); min-height: 620px; padding: 30px 0 22px; text-align: center; }
+#trash-card, #keep-card { text-transform: lowercase; justify-self: center; width: 100px; }
+.swipe-area { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 25px; }
+#swipe-stack { position: relative; width: min(68vw, 300px); aspect-ratio: 1; }
+.stack-back, .takeaway-front { position: absolute; inset: 0; background: #fff; border: 1px solid #000; border-radius: 29px; }
+.back-one { transform: rotate(7deg); }
+.back-two { transform: rotate(11deg) translate(8px,-8px); }
+.takeaway-front { display: grid; place-items: center; padding: 25px; touch-action: none; user-select: none; cursor: grab; transform: rotate(-2deg); }
+.takeaway-front:active { cursor: grabbing; }
+.takeaway-front p { margin: 0; line-height: 1.5; font-size: 12px; }
+#filter-progress { margin: 0; font-size: 10px; color: #888; }
+.filter-tools { max-width: 600px; margin: 0 auto; }
+.filter-tools small { color: #888; display: block; margin-top: 24px; }
+.filter-empty { margin-top: 40%; line-height: 1.6; }
+.flow-screen #toast { margin: 0 26px 16px; line-height: 1.6; }
+.flow-screen #toast:empty { display: none; }
+@media (min-width: 768px) { .critique-invitation { max-width: 540px; margin-left: auto; margin-right: auto; } .live-stage { max-width: 650px; margin: auto; } #kept-feedback { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; } .kept-card { margin: 15px 0; } }
+@media (max-width: 430px) { .project-preview { height: auto; aspect-ratio: 348 / 458; min-height: 0; } .flow-header nav { font-size: 16px; } }
+@media (prefers-reduced-motion: no-preference) { .takeaway-front { transition: box-shadow .15s; } }
+
+/* Entry animation keeps the original portrait artwork visible on every screen. */
+#entry-loading { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; background: #fff; }
+#entry-animation, .loading-animation { display: block; width: min(72vw, 55dvh, 400px); height: auto; aspect-ratio: 1; object-fit: contain; }
+
+.home-projects { margin-top: 32px; }
+.home-projects ul { list-style: none; margin: 0; padding: 0; }
+.home-projects li { margin: 20px 0; }
+.home-projects a { color: #000; text-decoration: none; font-size: 14px; }
+.home-projects a:hover { text-decoration: underline; }
+
+/* Home fills the available viewport; feedback cards swipe within their own row. */
+html { -webkit-text-stroke: .25px currentColor; }
+.home-screen { height: 100dvh; overflow: hidden; }
+.home-screen #app { height: 100%; display: flex; flex-direction: column; }
+.home-header { width: 100%; max-width: 900px; flex: 0 0 auto; padding: clamp(16px,3dvh,30px) 6% 0; margin: 0 auto; }
+.home-header .room-title { font-size: clamp(20px,3dvh,24px); font-weight: 400; }
+.home-header button { font-size: clamp(14px,2dvh,18px); }
+.home-main { width: 100%; max-width: 900px; flex: 1; min-height: 0; padding: 0 6% max(12px,env(safe-area-inset-bottom)); display: grid; grid-template-rows: minmax(0,1.35fr) minmax(75px,.75fr) minmax(0,1fr); gap: clamp(12px,2dvh,24px); }
+.home-actions { display: flex; align-items: center; justify-content: center; min-height: 0; margin: 0; }
+.home-project-box { display: flex; justify-content: center; align-items: center; box-sizing: border-box; height: min(85%,30dvh,300px); max-width: 80%; aspect-ratio: 1; padding: 14px; border: 2px solid #171717; border-radius: 9px 7px 10px 7px; background: #fff; color: #000; font: clamp(18px,3dvh,24px) "Yomogi", cursive; text-align: center; box-shadow: .6px .5px 0 #171717; }
+.home-project-box:focus-within, #home-start:focus-visible { outline: 2px solid #000; outline-offset: 5px; }
+.home-feedback { margin: 0; min-height: 0; display: flex; flex-direction: column; gap: clamp(8px,2dvh,20px); }
+.home-feedback h1 { margin: 0; font-size: clamp(20px,3dvh,24px); font-weight: 400; }
+.home-feedback h1::after { content: none; }
+.home-feedback>p { margin: 0; font-size: clamp(14px,2.3dvh,18px); }
+.home-feedback-cards { display: flex; flex: 1; min-height: 0; overflow: auto; gap: 12px; scroll-snap-type: x mandatory; }
+.home-feedback-cards .kept-card { flex: 0 0 100%; box-sizing: border-box; margin: 0; padding: 10px 16px; scroll-snap-align: start; overflow: auto; }
+.home-feedback-cards .kept-card h2 { font-size: 14px; margin: 0 0 5px; }
+.home-feedback-cards .kept-card p { font-size: 14px; margin: 0; }
+.home-footer { position: relative; width: min(100%,470px); height: 100%; min-height: 0; margin: 0 auto; }
+.home-character { position: absolute; bottom: 0; left: 5%; height: 100%; width: auto; max-width: 72%; object-fit: contain; object-position: bottom; clip-path: polygon(0 0,85% 0,85% 22%,100% 22%,100% 100%,0 100%); }
+#home-start { position: absolute; right: 0; top: 4%; border: 2px solid #171717; border-radius: 3px 5px 2px 4px; background: #fff; color: #000; padding: 0 7px 3px; margin: 0; font: clamp(17px,3dvh,24px) "Yomogi", cursive; line-height: 1.25; transform: rotate(-1deg); cursor: pointer; }
+.home-screen #toast { position: fixed; bottom: 8px; left: 6%; right: 6%; z-index: 2; margin: 0; background: #fff; font-size: 13px; }
+@media (max-height: 450px) and (min-width: 600px) { .home-main { grid-template-columns: 1fr 1fr; grid-template-rows: minmax(70px,1fr) minmax(0,1fr); gap: 10px 30px; } .home-actions { grid-row: 1 / 3; } .home-project-box { height: min(75%,60dvh); } .home-footer { grid-column: 2; } }
+
+#home-project-name { width: 100%; max-width: 100%; min-width: 0; border: 0; background: transparent; text-align: center; padding: 8px 0; font: inherit; color: #000; }
+#home-project-name::placeholder { color: #000; opacity: 1; }
+#home-project-name:focus { outline: none; }
+.home-project-box:focus-within { outline: 2px solid #000; outline-offset: 5px; }
+.recording-screen .flow-header { max-width: 1100px; padding: 35px 7% 0; min-height: 75px; }
+.recording-screen .flow-header nav { font-size: clamp(20px, 3.8vw, 30px); font-weight: 400; gap: 14px; }
+.recording-screen .flow-header nav a { color: #aaa; }
+.recording-screen #flow-main { padding: 0 24px 24px; }
+.recording-screen .live-stage { height: calc(100dvh - 100px); min-height: 470px; }
+.recording-screen .record-center { top: 50%; left: 50%; transform: translate(-50%, -45%); width: min(78vw, 350px); aspect-ratio: 1; }
+.record-ring { width: 100%; height: 100%; position: absolute; inset: 0; fill: none; stroke: #111; stroke-width: 3.5; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.record-mic { position: absolute; top: 23%; left: 44%; width: 12%; height: 13%; fill: none; stroke: #111; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.recording-screen #live-record { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; padding: 0 20px 0; border-radius: 50%; font-size: clamp(20px, 4.5vw, 25px); }
+.recording-screen #live-clock { position: absolute; top: 70%; left: 0; width: 100%; margin: 0; font-size: 23px; pointer-events: none; }
+.recording-screen #live-status { position: absolute; top: 103%; left: 0; width: 100%; margin: 0; font-size: 13px; }
+.recording-screen .live-bottom { bottom: 0; left: 50%; transform: translateX(-50%); max-width: 470px; font-size: 18px; }
+.recording-screen .live-bottom[hidden] { display: none; }
+.recording-extras { max-width: 620px; margin: 45px auto 0; font-size: 14px; }
+
+.recording-motion { position: absolute; top: 0; left: 50%; width: 100vw; height: 100%; transform: translateX(-50%); overflow: hidden; background: #fff; pointer-events: none; }
+.recording-motion[hidden], .recording-motion [hidden] { display: none; }
+.recording-motion img, .recording-motion canvas { position: absolute; top: 36%; left: 0; transform: translateY(-50%); display: block; width: 100%; height: auto; max-height: none; }
+.recording-active .record-center { opacity: 0; pointer-events: none; }
+.recording-active .record-center #live-record { visibility: hidden; }
+.recording-screen .recording-active .live-bottom { bottom: 20%; max-width: 720px; justify-content: space-between; gap: 24px; }
+.recording-screen .recording-active .live-bottom button { height: clamp(42px,5dvh,52px); min-width: 120px; border: 2px solid #171717; border-radius: 5px 3px 6px 2px; padding: 2px 10px 5px; font-size: clamp(18px,3vw,24px); line-height: 1; background: #fff; transform: rotate(.5deg); }
+.recording-screen .recording-active #live-pause { width: 25%; min-width: 90px; transform: rotate(-.6deg); }
+#live-pause svg { height: 30px; width: 30px; fill: none; stroke: #111; stroke-width: 2; stroke-linejoin: round; }
+@media (max-width: 600px) { .recording-screen .recording-active .live-bottom { width: 90%; } }
+
+.recording-screen { overflow-x: clip; }
+.recording-screen .flow-header, .recording-screen .live-bottom { z-index: 1; position: relative; }
+.recording-screen .live-bottom { position: absolute; }
+
+/* Feedback card follows the compact hand-drawn reference. */
+.kept-card, .home-feedback-cards .kept-card { border: 2px solid #111; border-radius: 10px 8px 9px 7px; box-shadow: .6px .5px 0 #111; padding: 22px 24px 16px; }
+.kept-card h2, .home-feedback-cards .kept-card h2 { margin: 0 0 16px; font-size: 16px; font-weight: 700; }
+.kept-card>p, .home-feedback-cards .kept-card>p { margin: 0 0 32px; font-size: 18px; line-height: 1.5; }
+.kept-card .evidence { margin: 0; font-size: 17px; }
+.kept-card .evidence>summary { display: flex; align-items: center; gap: 14px; list-style: none; cursor: pointer; font-weight: 700; }
+.kept-card .evidence>summary::-webkit-details-marker { display: none; }
+.kept-card .evidence>summary::before { content: ""; width: 0; height: 0; border-top: 9px solid transparent; border-bottom: 9px solid transparent; border-left: 15px solid #000; transform: rotate(3deg); flex-shrink: 0; }
+.kept-card .evidence[open]>summary::before { transform: rotate(90deg); }
+.kept-card .evidence>small { display: block; margin: 18px 0 8px; font-size: 12px; color: #666; }
+.kept-card .evidence p { font-size: 14px; line-height: 1.6; }
+.home-main:has(.home-feedback-cards) { grid-template-rows: minmax(0,1.1fr) minmax(200px,1.1fr) minmax(0,.9fr); }
+.home-feedback:has(.home-feedback-cards) { gap: 10px; }
+.home-feedback-cards .kept-card { padding: 16px 22px 12px; }
+.home-feedback-cards .kept-card h2 { margin-bottom: 12px; }
+.home-feedback-cards .kept-card>p { margin-bottom: 22px; }
+@media (max-height: 650px) { .home-main:has(.home-feedback-cards) { grid-template-rows: minmax(0,.8fr) minmax(175px,1.2fr) minmax(0,.7fr); } .home-feedback-cards .kept-card { padding: 12px 18px; } .home-feedback-cards .kept-card>p { font-size: 16px; margin-bottom: 15px; } }
+@media (max-height: 450px) and (min-width: 600px) { .home-main:has(.home-feedback-cards) { grid-template-rows: minmax(185px,1.3fr) minmax(0,.7fr); } }
+#home-project-name { font-size: clamp(14px,2.2dvh,18px); }
+.kept-card h2, .kept-card .evidence>summary { -webkit-text-stroke: .45px currentColor; }
+
+.preview-project-name { color: #000; font-size: clamp(20px,3vw,28px); text-align: center; padding: 24px; overflow-wrap: anywhere; }
+
+/* One square and one type scale across the project and takeaway views. */
+:root {
+  --project-square-size: min(62vw, 26dvh, 280px);
+  --project-square-font: clamp(14px, 2.2dvh, 18px);
+  --project-square-radius: 9px 7px 10px 7px;
+}
+.home-project-box, .project-preview, #swipe-stack {
+  width: var(--project-square-size);
+  height: var(--project-square-size);
+  max-width: 100%;
+  min-height: 0;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+}
+.home-project-box, .project-preview, .stack-back, .takeaway-front {
+  border: 2px solid #171717;
+  border-radius: var(--project-square-radius);
+  box-shadow: .6px .5px 0 #171717;
+  background: #fff;
+  color: #000;
+  font-family: "Yomogi", cursive;
+  font-size: var(--project-square-font);
+  font-weight: 400;
+}
+.project-preview { margin: 44px auto 32px; padding: 14px; }
+#home-project-name, .preview-project-name, .takeaway-front p {
+  font-family: "Yomogi", cursive;
+  font-size: var(--project-square-font);
+  font-weight: 400;
+  line-height: 1.5;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.preview-project-name { padding: 0; }
+.takeaway-front { padding: 14px; transform: none; }
+.takeaway-front p { max-width: 100%; max-height: 100%; overflow: auto; }
+.filter-stage { min-height: 0; }
+
+.keep-motion-canvas { position: absolute; width: 174.19355%; height: auto; max-width: none; left: -37.096775%; top: -104.83871%; pointer-events: none; z-index: 10; }
+.keep-collecting .takeaway-front, .keep-collecting .stack-back { visibility: hidden; }
+#swipe-stack[aria-busy="true"] { pointer-events: none; }
+.swipe-area { overscroll-behavior: contain; }
+
+.swipe-area:has(.keep-collecting) #filter-progress { visibility: hidden; }
+
+/* The supplied animated character sits on the bottom edge of the home screen. */
+.home-main { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.home-character-viewport { position: absolute; left: 0; bottom: 0; width: 72%; aspect-ratio: 478 / 315; max-height: 100%; overflow: hidden; pointer-events: none; }
+.home-character-viewport .home-character { position: absolute; left: 50%; bottom: -97.77778%; height: 322.22222%; width: auto; max-width: none; margin: 0; transform: translateX(-46%); clip-path: none; object-fit: initial; }
+
+/* The collecting scene is present from frame one and follows the downward drag. */
+.filter-stage { --project-square-size: min(72vw, 34dvh, 360px); --project-square-font: clamp(16px,2.5dvh,22px); }
+.filter-stage #swipe-stack { transform: translateY(calc(var(--project-square-size) * -.30)); }
+.keep-scene .takeaway-front { opacity: 0; }
+.keep-scene .stack-back, .scene-trash .stack-back { visibility: hidden; }
+#swipe-stack:has(.takeaway-front:focus-visible) { outline: 2px solid #000; outline-offset: 5px; }
+.swipe-area:has(.keep-scene) #filter-progress { transform: translateY(calc(var(--project-square-size) * .5)); }
+
+/* Both destinations stay visible around the card, including their idle first frames. */
+.filter-stage { --project-square-size: min(70vw, calc((100dvh - 150px) / 2.5), 360px); }
+.filter-stage #swipe-stack { transform: translateY(calc(var(--project-square-size) * -.05)); }
+.filter-stage .swipe-area { position: relative; }
+.filter-stage #filter-progress { position: absolute; left: calc(50% + var(--project-square-size) / 2 + 16px); top: 50%; margin: 0; white-space: nowrap; transform: translateY(-50%); }
+.filter-stage .swipe-area:has(.keep-scene) #filter-progress { transform: translateY(-50%); }
+.keep-motion-canvas { mix-blend-mode: multiply; }
+.filter-stage:has(.keep-collecting) #trash-card, .filter-stage:has(.keep-collecting) #keep-card { visibility: hidden; }

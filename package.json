@@ -1,0 +1,17 @@
+{
+  "name": "critique-room",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --experimental-sqlite server.js",
+    "start": "node --experimental-sqlite server.js",
+    "test": "node --experimental-sqlite --test",
+    "setup:local": "node scripts/setup-local-ai.mjs",
+    "reset:demo": "node --experimental-sqlite scripts/reset-demo.mjs"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0",
+    "qrcode": "^1.5.4"
+  }
+}
