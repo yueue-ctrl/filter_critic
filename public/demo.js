@@ -1,6 +1,5 @@
 import {projectName} from './project-name.js';
-import {createDemoSession,applyDemoAnalysis,demoExport} from './demo-session.js';
-import {feedbackDocument} from './feedback-export.js';
+import {createDemoSession,applyDemoAnalysis} from './demo-session.js';
 import {prepareKeepMotion,playDecisionMotion,showKeepIdle,previewKeepDrag} from './organize-motion.js';
 import {createDecisionGate} from './organize-decisions.js';
 const $=selector=>document.querySelector(selector),esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -19,9 +18,9 @@ function evidence(card){return `<details class="evidence"><summary>Transcript fe
 function keptCard(card){return `<article class="kept-card"><h2>KEY POINTS</h2><p>${esc(card.brief)}</p>${evidence(card)}</article>`;}
 function home(){
  showView('home');document.body.className='home-screen'+(session.analyzed?' feedback-results':'');const kept=session.takeaways.filter(t=>t.decision==='keep'),pending=session.takeaways.some(t=>t.decision==='pending');
- $('#app').innerHTML=`<header class="home-header"><a class="room-title" href="/" id="home-link">Critroom</a><button id="download-feedback" ${session.analyzed?'':'disabled'}>Download</button></header><main class="home-main"><div class="home-actions"><div class="home-project-box"><input id="home-project-name" aria-label="Project name" placeholder="untitled project" value="${session.named?esc(session.title):''}" maxlength="120" autocomplete="off"></div></div><section class="home-feedback"><h1>Feedback</h1>${kept.length?'<div class="home-feedback-cards">'+kept.map(keptCard).join('')+'</div>':`<p>${session.analyzed?'No takeaways kept yet.':'Start critique to see some feedback!'}</p>`}${pending?'<button id="review-pending" class="demo-text-button">Organize feedback</button>':''}</section>${session.analyzed?'':'<div class="home-footer"><div class="home-character-viewport"><img alt="" class="home-character"></div><button id="home-start">Start Critique</button></div>'}</main>`;
+ $('#app').innerHTML=`<header class="home-header"><a class="room-title" href="/" id="home-link">Critroom</a><button id="print-feedback" ${session.analyzed?'':'disabled'}>Print</button></header><main class="home-main"><div class="home-actions"><div class="home-project-box"><input id="home-project-name" aria-label="Project name" placeholder="untitled project" value="${session.named?esc(session.title):''}" maxlength="120" autocomplete="off"></div></div><section class="home-feedback"><h1>Feedback</h1>${kept.length?'<div class="home-feedback-cards">'+kept.map(keptCard).join('')+'</div>':`<p>${session.analyzed?'No takeaways kept yet.':'Start critique to see some feedback!'}</p>`}${pending?'<button id="review-pending" class="demo-text-button">Organize feedback</button>':''}</section>${session.analyzed?'':'<div class="home-footer"><div class="home-character-viewport"><img alt="" class="home-character"></div><button id="home-start">Start Critique</button></div>'}</main>`;
  $('#home-link').onclick=e=>{e.preventDefault();home();};$('#home-project-name').oninput=e=>{session.title=projectName(e.target.value);session.named=!!e.target.value.trim();};
- if($('#home-start'))$('#home-start').onclick=recordingView;$('#download-feedback').onclick=download;
+ if($('#home-start'))$('#home-start').onclick=recordingView;$('#print-feedback').onclick=printFeedback;
  if($('#review-pending'))$('#review-pending').onclick=organizing;
  if(!$('#entry-loading'))homeAnimation();
 }
@@ -35,7 +34,7 @@ const mic='<svg class="record-mic" viewBox="0 0 48 56" aria-hidden="true"><rect 
 const pauseIcon='<svg viewBox="0 0 36 40" aria-hidden="true"><path d="M5 3h8v33H5zM23 3h8v33h-8z"/></svg>',resumeIcon='<svg viewBox="0 0 36 40" aria-hidden="true"><path d="M7 3L32 20L7 37Z"/></svg>';
 function recordingView(){
  showView('record');flowHeader('');document.body.classList.add('recording-screen');
- $('#flow-main').innerHTML=`<div class="live-stage"><div class="recording-motion" hidden aria-hidden="true"><img id="recording-animation" src="/recording.gif" alt=""><canvas id="paused-animation" hidden></canvas></div><div class="record-center">${ring}${mic}<button id="live-record">${session.audio?'Record again':'Start recording'}</button><p id="live-clock">00:00</p><p id="live-status" role="status">${session.audio?'Recording ready.':''}</p></div><div class="live-bottom" ${capture||session.audio?'':'hidden'}><button id="live-pause" aria-label="Pause recording" disabled>${pauseIcon}</button><button id="finish-critique">Finish critique</button></div></div><p class="demo-session-note">${config.provider==='gemini'?'Audio is sent to Google for analysis. ':''}This is a temporary session. Download your results before refreshing.</p>`;
+ $('#flow-main').innerHTML=`<div class="live-stage"><div class="recording-motion" hidden aria-hidden="true"><img id="recording-animation" src="/recording.gif" alt=""><canvas id="paused-animation" hidden></canvas></div><div class="record-center">${ring}${mic}<button id="live-record">${session.audio?'Record again':'Start recording'}</button><p id="live-clock">00:00</p><p id="live-status" role="status">${session.audio?'Recording ready.':''}</p></div><div class="live-bottom" ${capture||session.audio?'':'hidden'}><button id="live-pause" aria-label="Pause recording" disabled>${pauseIcon}</button><button id="finish-critique">Finish critique</button></div></div><p class="demo-session-note">${config.provider==='gemini'?'Audio is sent to Google for analysis. ':''}This is a temporary session. Print or save your results as PDF before refreshing.</p>`;
  $('#live-record').onclick=startCapture;$('#live-pause').onclick=togglePause;$('#finish-critique').onclick=finish;
  if(capture){paintRecordingState();clock=setInterval(updateClock,250);}
 }
@@ -81,7 +80,7 @@ async function finish(){
 }
 function organizing(){
  showView('organizing');flowHeader('Organizing','<button id="finalize">FINALIZE</button>');document.body.classList.add('organizing-screen');
- $('#flow-main').innerHTML='<div class="filter-stage"><button id="trash-card">Trash</button><div class="swipe-area"><div id="swipe-stack"></div><p id="filter-progress" role="status"></p></div><button id="keep-card">Keep</button></div><div class="filter-tools"><button id="undo-decision" disabled>Undo</button><details><summary>Sources</summary><div id="filter-evidence"></div></details></div>';
+ $('#flow-main').innerHTML='<div class="filter-stage"><button id="trash-card" aria-label="Trash takeaway"></button><div class="swipe-area"><div id="swipe-stack"></div><p id="filter-progress" role="status"></p></div><button id="keep-card" aria-label="Keep takeaway"></button></div><div class="filter-tools"><button id="undo-decision" disabled>Undo</button><details><summary>Sources</summary><div id="filter-evidence"></div></details></div>';
  const controller=new AbortController();sceneController=controller;const stack=$('#swipe-stack'),current=()=>session.takeaways.find(t=>t.decision==='pending'),active=()=>!controller.signal.aborted&&stack.isConnected;
  let busy=false,last=null,wheel=0,armed=true,resetWheel,keyboardFocus=false;
  prepareKeepMotion().catch(()=>{});
@@ -93,7 +92,7 @@ function organizing(){
  $('.swipe-area').addEventListener('wheel',e=>{if(!current()||e.ctrlKey||Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;e.preventDefault();clearTimeout(resetWheel);resetWheel=setTimeout(()=>{wheel=0;armed=true;},260);if(busy||!armed)return;wheel+=e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?innerHeight:1);if(Math.abs(wheel)>65){armed=false;void decide(wheel>0?'keep':'trash',current().id);}},{passive:false});controller.signal.addEventListener('abort',()=>clearTimeout(resetWheel),{once:true});
  function render(){
   if(!active())return;const t=current(),pending=session.takeaways.filter(t=>t.decision==='pending');stack.classList.remove('keep-collecting','keep-scene','scene-trash');
-  $('#filter-progress').textContent=t?`${session.takeaways.length-pending.length+1} / ${session.takeaways.length}`:'All takeaways reviewed.';$('#filter-evidence').innerHTML=t?evidence(t):'';
+  $('#filter-progress').textContent=t?`${session.takeaways.length-pending.length+1} / ${session.takeaways.length}`:'';$('#filter-evidence').innerHTML=t?evidence(t):'';
   stack.innerHTML=t?`${pending.length>2?'<div class="stack-back back-two"></div>':''}${pending.length>1?'<div class="stack-back back-one"></div>':''}<div class="takeaway-front" tabindex="0" role="group" aria-label="Takeaway: ${esc(t.brief)}"><p>${esc(t.brief)}</p></div>`:`<p class="filter-empty">${session.takeaways.length?'Ready to finalize.':'No specific design takeaways were found.'}</p>`;
   sync();if(!t)return;const front=stack.querySelector('.takeaway-front');if(keyboardFocus){front.focus({preventScroll:true});keyboardFocus=false;}void showKeepIdle(stack,t.brief,controller.signal);let pointer=null;
   front.onpointerdown=e=>{if(busy||pointer||e.button>0||!e.isPrimary)return;pointer={id:e.pointerId,x:e.clientX,y:e.clientY};front.setPointerCapture(e.pointerId);};
@@ -104,10 +103,24 @@ function organizing(){
  }
  render();
 }
-async function download(){
- const button=$('#download-feedback');if(!session.analyzed)return;button.disabled=true;
- try{const response=await fetch('/fonts/Yomogi-Regular.ttf');if(!response.ok)throw Error('The download could not be prepared. Please retry.');const font=await readData(await response.blob()),data=demoExport(session),html=feedbackDocument(data.project,data.critiques,{},font),url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'})),link=document.createElement('a');link.href=url;link.download=(session.title.replace(/[^\p{L}\p{N} _-]/gu,'').trim()||'untitled project')+'-feedback.html';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}catch(e){notice(e.message);}finally{if(button.isConnected)button.disabled=false;}
+function printFeedback(){
+ if(!session.analyzed)return;
+ window.print();
 }
+let printState=null;
+window.addEventListener('beforeprint',()=>{
+ if(printState)return;
+ const box=$('.home-project-box'),details=[...document.querySelectorAll('.home-feedback .evidence')];
+ printState={details:details.map(element=>[element,element.open]),title:document.title};
+ if(box)box.dataset.printTitle=session.title;
+ document.title=session.title+' — Feedback';
+ details.forEach(element=>{element.open=true;});
+});
+window.addEventListener('afterprint',()=>{
+ if(!printState)return;
+ printState.details.forEach(([element,open])=>{element.open=open;});
+ document.title=printState.title;printState=null;
+});
 window.addEventListener('beforeunload',e=>{if(capture){e.preventDefault();e.returnValue='';}});
 window.addEventListener('pagehide',()=>{analysisController?.abort();capture?.stream.getTracks().forEach(t=>t.stop());});
 window.addEventListener('pageshow',e=>{if(e.persisted){session=createDemoSession();capture=null;home();}});
