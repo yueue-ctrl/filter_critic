@@ -1,4 +1,5 @@
 // Stateless analysis. Request data stays in memory; no database, file upload service, or account.
+import {setTimeout as delay} from 'node:timers/promises';
 export const MAX_AUDIO_BYTES=3_000_000;
 export const MAX_BODY_BYTES=4_100_000;
 export const MAX_RECORD_SECONDS=600;
@@ -42,10 +43,11 @@ export function validatedResult(raw){
  return {transcript,takeaways};
 }
 const schema={type:'OBJECT',required:['transcript','takeaways'],properties:{transcript:{type:'STRING'},takeaways:{type:'ARRAY',items:{type:'OBJECT',required:['keyword','brief','quotes'],properties:{keyword:{type:'STRING'},brief:{type:'STRING'},quotes:{type:'ARRAY',items:{type:'STRING'}}}}}}};
-export async function geminiAnalysis(input,{fetcher=fetch,env=process.env,signal}={}){
+export async function geminiAnalysis(input,{fetcher=fetch,env=process.env,signal,attempt=0}={}){
  if(!env.GEMINI_API_KEY)throw error(503,'Analysis is not connected yet. Please try again later.');
  const model=env.GEMINI_MODEL||'gemini-3.1-flash-lite';if(!/^[a-z0-9.-]+$/.test(model))throw error(503,'The analysis service is not configured correctly.');
  const modern=model.startsWith('gemini-3');
+ signal=signal?AbortSignal.any([signal,AbortSignal.timeout(240000)]):AbortSignal.timeout(240000);
  const generationConfig={temperature:modern?1:0,maxOutputTokens:16384,responseMimeType:'application/json',responseSchema:schema,...(model.startsWith('gemini-3.1-flash-lite')?{thinkingConfig:{thinkingLevel:'minimal'}}:model.startsWith('gemini-2.5-flash')?{thinkingConfig:{thinkingBudget:0}}:{})};
  const parts=[{text:JSON.stringify({project:input.title,writtenFeedback:input.text})}];
  if(input.audio)parts.push({inlineData:{mimeType:input.audio.mime,data:input.audio.data}});
@@ -58,6 +60,14 @@ export async function geminiAnalysis(input,{fetcher=fetch,env=process.env,signal
   console.warn(JSON.stringify({event:'gemini_request_failed',status:response.status,reasons,model}));
   const message=String(failure.error?.message||'');
   if(reasons.some(reason=>reason.startsWith('API_KEY_'))||/api key.*(invalid|expired|leaked|blocked)/i.test(message))throw error(503,'The analysis API key needs to be replaced by the host. Your recording is still available to retry.');
+  if(response.status===503){
+   if(attempt===0){
+    try{await delay(800,undefined,{signal});}catch{throw error(504,'Analysis took too long. Please retry.');}
+    return geminiAnalysis(input,{fetcher,env,signal,attempt:1});
+   }
+   if(model==='gemini-3.1-flash-lite')return geminiAnalysis(input,{fetcher,env:{...env,GEMINI_MODEL:'gemini-2.5-flash'},signal,attempt:1});
+   throw error(503,'Google’s analysis models are temporarily busy. Please wait a moment and retry.');
+  }
   if(response.status===429)throw error(429,'The free analysis quota is busy or exhausted. Please try again later.');
   if([401,403].includes(response.status))throw error(503,'Analysis is not available. The host needs to check its API configuration.');
   if(response.status===404)throw error(503,'The configured analysis model is unavailable. The host needs to update it.');
