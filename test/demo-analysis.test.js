@@ -31,3 +31,8 @@ test('mobile recorder MIME parameters are normalized before model upload',()=>{
  }
  assert.throws(()=>analysisInput({audio:'data:video/mp4;base64,YWJj'}),/supported/);
 });
+test('provider failures distinguish key and model configuration without exposing secrets',async()=>{
+ for(const [status,payload,expected]of [[400,{message:'API key expired',details:[{reason:'API_KEY_EXPIRED'}]},/key needs to be replaced/],[404,{message:'not found'},/model is unavailable/],[400,{message:'bad audio'},/could not read/]]){
+  await assert.rejects(geminiAnalysis(analysisInput({audio}),{env:{GEMINI_API_KEY:'test'},fetcher:async()=>({ok:false,status,json:async()=>({error:payload})})}),expected);
+ }
+});
