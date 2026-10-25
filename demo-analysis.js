@@ -65,7 +65,7 @@ export async function geminiAnalysis(input,{fetcher=fetch,env=process.env,signal
     try{await delay(800,undefined,{signal});}catch{throw error(504,'Analysis took too long. Please retry.');}
     return geminiAnalysis(input,{fetcher,env,signal,attempt:1});
    }
-   if(model==='gemini-3.1-flash-lite')return geminiAnalysis(input,{fetcher,env:{...env,GEMINI_MODEL:'gemini-2.5-flash'},signal,attempt:1});
+   if(model==='gemini-3.1-flash-lite')return geminiAnalysis(input,{fetcher,env:{...env,GEMINI_MODEL:'gemini-3.5-flash-lite'},signal,attempt:1});
    throw error(503,'Google’s analysis models are temporarily busy. Please wait a moment and retry.');
   }
   if(response.status===429)throw error(429,'The free analysis quota is busy or exhausted. Please try again later.');

@@ -43,5 +43,5 @@ test('temporary model outage retries once then uses the alternate Gemini model',
   if(calls.length<=2)return {ok:false,status:503,json:async()=>({error:{message:'Busy'}})};
   return {ok:true,json:async()=>({candidates:[{finishReason:'STOP',content:{parts:[{text:JSON.stringify({transcript:'Try Inter.',takeaways:[{keyword:'font',brief:'Try Inter.',quotes:['Try Inter.']}]})}]}}]})};
  }});
- assert.equal(calls.length,3);assert.equal(calls[0],calls[1]);assert.match(calls[2],/gemini-2.5-flash:generateContent$/);assert.equal(result.takeaways[0].brief,'Try Inter.');
+ assert.equal(calls.length,3);assert.equal(calls[0],calls[1]);assert.match(calls[2],/gemini-3.5-flash-lite:generateContent$/);assert.equal(result.takeaways[0].brief,'Try Inter.');
 });
