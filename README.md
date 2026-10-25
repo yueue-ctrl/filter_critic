@@ -27,7 +27,7 @@ The offline runtime is development-only and is never used by the Vercel API func
 
 1. Import this GitHub repository as a Vercel project.
 2. Add `GEMINI_API_KEY` as a server-side environment variable in the Vercel dashboard. Do not put it in browser code, a `VITE_`/`NEXT_PUBLIC_` variable, GitHub, or chat.
-3. Optionally set `GEMINI_MODEL=gemini-2.5-flash` (the default).
+3. Optionally set `GEMINI_MODEL=gemini-3.1-flash-lite` (the default).
 4. Deploy. The included `vercel.json` runs `npm run build`, serves `dist/`, and exposes `api/analyze.js` and `api/config.js` as Node functions.
 
 No Supabase project or database configuration is needed. Visitors do not need their own API key or model installation. Missing/invalid keys and exhausted quota show a retryable error; the app does not silently switch to a different paid service.
