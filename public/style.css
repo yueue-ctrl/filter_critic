@@ -301,6 +301,9 @@ html { -webkit-text-stroke: .25px currentColor; }
 .flow-header nav a, .flow-header nav .nav-ancestor { color: #aaa; }
 .flow-header nav [aria-current="page"] { color: #000; }
 .recording-motion img, .recording-motion canvas { top: 46%; }
+@media (min-width: 768px) {
+ .recording-motion img, .recording-motion canvas { width: min(560px,70dvh,100%); left: 50%; transform: translate(-50%,-50%); }
+}
 
 /* Organizing owns the viewport; gestures move a single card, never the page. */
 body.organizing-screen { position: fixed; inset: 0; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
