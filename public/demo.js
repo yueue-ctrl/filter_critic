@@ -26,7 +26,8 @@ function home(){
  if(!$('#entry-loading'))homeAnimation();
 }
 function flowHeader(label,action=''){
- document.body.className='flow-screen';$('#app').innerHTML=`<header class="flow-header"><nav><a href="/" id="back-home">Critroom /</a><span>${esc(session.title)}${label?' / '+label:''}</span></nav>${action}</header><main id="flow-main"></main>`;
+ document.body.className='flow-screen';$('#app').innerHTML=`<header class="flow-header"><nav><a href="/" id="back-home">Critroom /</a>${label?'<span class="nav-ancestor">'+esc(session.title)+' /</span><span aria-current="page">'+esc(label)+'</span>':'<span aria-current="page">'+esc(session.title)+'</span>'}</nav>${action}</header><main id="flow-main"></main>`;
+ const nav=$('.flow-header nav');requestAnimationFrame(()=>{nav.scrollLeft=nav.scrollWidth;});
  $('#back-home').onclick=async e=>{e.preventDefault();await stopCapture();home();};
 }
 const ring='<svg class="record-ring" viewBox="0 0 370 370" aria-hidden="true"><path d="M211 350 C146 346 73 320 40 267 C7 215 14 137 48 84 C86 27 164 3 228 20 C300 36 352 90 355 162 C361 226 328 291 275 317 C212 351 133 336 90 299 M90 299 C118 333 170 356 211 361"/></svg>';
@@ -79,7 +80,7 @@ async function finish(){
  }catch(e){if(e.name==='AbortError')return;if(view==='processing'){showView('error');flowHeader('');$('#flow-main').innerHTML=`<div class="analysis-help"><h1>Analysis unavailable</h1><p>${esc(e.message)}</p><p>Your recording is still in this tab. Refreshing will clear it.</p><button id="retry-analysis">Retry analysis</button><button id="record-again">Record again</button></div>`;$('#retry-analysis').onclick=finish;$('#record-again').onclick=recordingView;}else notice(e.message);}finally{finishing=false;}
 }
 function organizing(){
- showView('organizing');flowHeader('Organizing','<button id="finalize">FINALIZE</button>');
+ showView('organizing');flowHeader('Organizing','<button id="finalize">FINALIZE</button>');document.body.classList.add('organizing-screen');
  $('#flow-main').innerHTML='<div class="filter-stage"><button id="trash-card">Trash</button><div class="swipe-area"><div id="swipe-stack"></div><p id="filter-progress" role="status"></p></div><button id="keep-card">Keep</button></div><div class="filter-tools"><button id="undo-decision" disabled>Undo</button><details><summary>Sources</summary><div id="filter-evidence"></div></details></div>';
  const controller=new AbortController();sceneController=controller;const stack=$('#swipe-stack'),current=()=>session.takeaways.find(t=>t.decision==='pending'),active=()=>!controller.signal.aborted&&stack.isConnected;
  let busy=false,last=null,wheel=0,armed=true,resetWheel,keyboardFocus=false;

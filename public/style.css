@@ -294,3 +294,21 @@ html { -webkit-text-stroke: .25px currentColor; }
 .feedback-results .home-feedback-cards { display: flex; flex: none; flex-direction: column; overflow: visible; scroll-snap-type: none; gap: 20px; }
 .feedback-results .home-feedback-cards .kept-card { flex: none; width: 100%; height: auto; min-height: 0; overflow: visible; overflow-wrap: anywhere; }
 .feedback-results .kept-card .original { margin-top: 12px; }
+
+/* Keep the active breadcrumb visible while allowing access to the full path. */
+.flow-header nav { flex: 1; overflow-x: auto; overflow-y: hidden; white-space: nowrap; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.flow-header nav::-webkit-scrollbar { display: none; }
+.flow-header nav a, .flow-header nav span { flex: 0 0 auto; overflow: visible; text-overflow: clip; white-space: nowrap; }
+.flow-header nav a, .flow-header nav .nav-ancestor { color: #aaa; }
+.flow-header nav [aria-current="page"] { color: #000; }
+.recording-motion img, .recording-motion canvas { top: 46%; }
+
+/* Organizing owns the viewport; gestures move a single card, never the page. */
+body.organizing-screen { position: fixed; inset: 0; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+.organizing-screen #app { height: 100%; display: flex; flex-direction: column; }
+.organizing-screen .flow-header { width: 100%; flex: 0 0 auto; }
+.organizing-screen #flow-main { width: 100%; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.organizing-screen .filter-stage { flex: 1; height: auto; min-height: 0; padding-top: 12px; padding-bottom: 12px; }
+.organizing-screen .swipe-area { min-height: 0; touch-action: none; }
+.organizing-screen .filter-tools { width: 100%; flex: 0 0 auto; max-height: 18dvh; overflow-y: auto; padding: 0 22px max(10px,env(safe-area-inset-bottom)); overscroll-behavior: contain; }
+.organizing-screen #toast { flex: 0 0 auto; }
